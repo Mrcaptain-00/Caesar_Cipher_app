@@ -23,14 +23,13 @@
     }
 
     body.light {
-  --bg: linear-gradient(to right, #fceabb, #f8b6d2, #c2e9fb); 
-  --card-bg: #fffdf9;     
-  --text: #222222;        
-  --input-bg: #fef8f2;    
-  --btn-bg: #ec4899;      
-  --error: #e11d48;    
-}
-
+      --bg: linear-gradient(to right, #fceabb, #f8b6d2, #c2e9fb);
+      --card-bg: #fffdf9;
+      --text: #222222;
+      --input-bg: #fef8f2;
+      --btn-bg: #ec4899;
+      --error: #e11d48;
+    }
 
     body {
       background: var(--bg);
@@ -81,6 +80,10 @@
       margin-bottom: 10px;
     }
 
+    input, textarea {
+      autocomplete: off;
+    }
+
     textarea {
       resize: vertical;
       min-height: 80px;
@@ -120,21 +123,20 @@
     }
 
     .toggle-mode {
-  background-color: transparent;
-  border: 2px solid var(--text);
-  color: var(--text);
-  padding: 8px 16px;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+      background-color: transparent;
+      border: 2px solid var(--text);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-.toggle-mode:hover {
-  background-color: var(--input-bg);
-}
-
+    .toggle-mode:hover {
+      background-color: var(--input-bg);
+    }
 
     .error {
       color: var(--error);
@@ -174,10 +176,10 @@
     </select>
 
     <label for="message">Message:</label>
-    <textarea id="message" placeholder="Type your message..."></textarea>
+    <textarea id="message" placeholder="Type your message..." autocomplete="off"></textarea>
 
     <label for="key">Key (a number):</label>
-    <input type="number" id="key" placeholder="e.g. 3" />
+    <input type="number" id="key" placeholder="e.g. 3" autocomplete="off"/>
 
     <div class="error" id="error" style="display: none;"></div>
 
@@ -207,17 +209,17 @@
     }
 
     function decrypt(message, key) {
-      let cipher = '';
+      let plain = '';
       for (let letter of message) {
         const index = letters.indexOf(letter);
-        if (index === -1) cipher += letter;
+        if (index === -1) plain += letter;
         else {
           let newIndex = index - key;
           if (newIndex < 0) newIndex += letters.length;
-          cipher += letters[newIndex];
+          plain += letters[newIndex];
         }
       }
-      return cipher;
+      return plain;
     }
 
     function process() {
@@ -254,6 +256,8 @@
 
     function toggleTheme() {
       document.body.classList.toggle('light');
+      const btn = document.getElementById("themeToggle");
+      btn.textContent = document.body.classList.contains('light') ? "🌙 Switch to Dark Mode" : "🌓 Switch to Light Mode";
     }
 
     function updateButtonText() {
@@ -261,6 +265,5 @@
       document.getElementById('actionBtn').textContent = action === 'encrypt' ? "Encrypt Now" : "Decrypt Now";
     }
   </script>
-
 </body>
 </html>
