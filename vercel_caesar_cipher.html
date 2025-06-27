@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caesar Cipher | Encrypt & Decrypt</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .container h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #1abc9c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #16a085;
+    }
+
+    .result {
+      margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      word-wrap: break-word;
+    }
+
+    ::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🔐 Caesar Cipher</h1>
+
+    <label for="action">Choose Action:</label>
+    <select id="action">
+      <option value="encrypt">Encrypt</option>
+      <option value="decrypt">Decrypt</option>
+    </select>
+
+    <label for="message">Enter your message:</label>
+    <textarea id="message" placeholder="Your message here..."></textarea>
+
+    <label for="key">Enter key (number):</label>
+    <input type="number" id="key" placeholder="e.g. 3" />
+
+    <button onclick="process()">Run Cipher</button>
+
+    <div class="result" id="resultBox" style="display:none;">
+      <strong>Result:</strong>
+      <p id="result"></p>
+    </div>
+  </div>
+
+  <script>
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-={}[]|;:"<>,./?';
+
+    function encrypt(message, key) {
+      let cipher = '';
+      for (let letter of message) {
+        const index = letters.indexOf(letter);
+        if (index === -1) {
+          cipher += letter;
+        } else {
+          let newIndex = index + key;
+          if (newIndex >= letters.length) {
+            newIndex -= letters.length;
+          }
+          cipher += letters[newIndex];
+        }
+      }
+      return cipher;
+    }
+
+    function decrypt(message, key) {
+      let cipher = '';
+      for (let letter of message) {
+        const index = letters.indexOf(letter);
+        if (index === -1) {
+          cipher += letter;
+        } else {
+          let newIndex = index - key;
+          if (newIndex < 0) {
+            newIndex += letters.length;
+          }
+          cipher += letters[newIndex];
+        }
+      }
+      return cipher;
+    }
+
+    function process() {
+      const action = document.getElementById('action').value;
+      const message = document.getElementById('message').value;
+      const key = parseInt(document.getElementById('key').value);
+      const resultBox = document.getElementById('resultBox');
+      const resultText = document.getElementById('result');
+
+      if (!message || isNaN(key)) {
+        alert("Please enter a valid message and numeric key.");
+        return;
+      }
+
+      const result = action === 'encrypt' ? encrypt(message, key) : decrypt(message, key);
+      resultBox.style.display = 'block';
+      resultText.textContent = result;
+    }
+  </script>
+
+</body>
+</html>
