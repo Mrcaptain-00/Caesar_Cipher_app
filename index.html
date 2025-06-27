@@ -19,15 +19,18 @@
       --text: #ffffff;
       --input-bg: rgba(255, 255, 255, 0.1);
       --btn-bg: #1abc9c;
+      --error: #ff4d4d;
     }
 
     body.light {
-      --bg: linear-gradient(to right, #e0eafc, #cfdef3);
-      --card-bg: rgba(255, 255, 255, 0.7);
-      --text: #333333;
-      --input-bg: #f1f1f1;
-      --btn-bg: #0077ff;
-    }
+  --bg: linear-gradient(to right, #fceabb, #f8b6d2, #c2e9fb); 
+  --card-bg: #fffdf9;     
+  --text: #222222;        
+  --input-bg: #fef8f2;    
+  --btn-bg: #ec4899;      
+  --error: #e11d48;    
+}
+
 
     body {
       background: var(--bg);
@@ -42,13 +45,12 @@
     .container {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border-radius: 16px;
       padding: 30px;
       width: 100%;
       max-width: 500px;
       color: var(--text);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
       position: relative;
     }
@@ -56,7 +58,7 @@
     .container h1 {
       text-align: center;
       margin-bottom: 24px;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 600;
     }
 
@@ -69,13 +71,14 @@
 
     input, select, textarea {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       border: none;
       outline: none;
       font-size: 16px;
       background: var(--input-bg);
       color: var(--text);
+      margin-bottom: 10px;
     }
 
     textarea {
@@ -84,7 +87,7 @@
     }
 
     button {
-      margin-top: 20px;
+      margin-top: 15px;
       width: 100%;
       padding: 12px;
       background-color: var(--btn-bg);
@@ -108,7 +111,6 @@
       border-radius: 10px;
       word-wrap: break-word;
       opacity: 0;
-      transform: translateY(10px);
       animation: fadeIn 0.4s ease forwards;
     }
 
@@ -118,25 +120,42 @@
     }
 
     .toggle-mode {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      cursor: pointer;
-      background-color: transparent;
-      border: none;
-      color: var(--text);
-      font-size: 18px;
+  background-color: transparent;
+  border: 2px solid var(--text);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-mode:hover {
+  background-color: var(--input-bg);
+}
+
+
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      margin-bottom: 10px;
     }
 
     @keyframes fadeIn {
       to {
         opacity: 1;
-        transform: translateY(0);
       }
     }
 
-    ::placeholder {
-      color: rgba(255,255,255,0.5);
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+
+      .container h1 {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
@@ -145,26 +164,32 @@
   <div class="container">
     <button class="toggle-mode" onclick="toggleTheme()">🌓</button>
 
-    <h1>🔐 Caesar Cipher</h1>
 
-    <label for="action">Choose Action:</label>
-    <select id="action">
-      <option value="encrypt">Encrypt</option>
-      <option value="decrypt">Decrypt</option>
+    <h1>🔐 Caesar Cipher Tool</h1>
+    <div class="theme-toggle-wrapper" style="text-align:center; margin-bottom: 20px;">
+      <button class="toggle-mode" onclick="toggleTheme()" id="themeToggle">🌓 Switch to Light Mode</button>
+    </div>
+    
+    <label for="action">Select Action:</label>
+    <select id="action" onchange="updateButtonText()">
+      <option value="encrypt">Encrypt Message</option>
+      <option value="decrypt">Decrypt Message</option>
     </select>
 
-    <label for="message">Enter your message:</label>
-    <textarea id="message" placeholder="Your message here..."></textarea>
+    <label for="message">Message:</label>
+    <textarea id="message" placeholder="Type your message..."></textarea>
 
-    <label for="key">Enter key (number):</label>
+    <label for="key">Key (a number):</label>
     <input type="number" id="key" placeholder="e.g. 3" />
 
-    <button onclick="process()">Run Cipher</button>
+    <div class="error" id="error" style="display: none;"></div>
+
+    <button id="actionBtn" onclick="process()">Encrypt Now</button>
 
     <div class="result" id="resultBox" style="display:none;">
-      <strong>Result:</strong>
+      <strong>Output:</strong>
       <p id="result"></p>
-      <button class="copy-btn" onclick="copyResult()">📋 Copy Result</button>
+      <button class="copy-btn" onclick="copyResult()">📋 Copy to Clipboard</button>
     </div>
   </div>
 
@@ -175,13 +200,9 @@
       let cipher = '';
       for (let letter of message) {
         const index = letters.indexOf(letter);
-        if (index === -1) {
-          cipher += letter;
-        } else {
-          let newIndex = index + key;
-          if (newIndex >= letters.length) {
-            newIndex -= letters.length;
-          }
+        if (index === -1) cipher += letter;
+        else {
+          let newIndex = (index + key) % letters.length;
           cipher += letters[newIndex];
         }
       }
@@ -192,13 +213,10 @@
       let cipher = '';
       for (let letter of message) {
         const index = letters.indexOf(letter);
-        if (index === -1) {
-          cipher += letter;
-        } else {
+        if (index === -1) cipher += letter;
+        else {
           let newIndex = index - key;
-          if (newIndex < 0) {
-            newIndex += letters.length;
-          }
+          if (newIndex < 0) newIndex += letters.length;
           cipher += letters[newIndex];
         }
       }
@@ -207,31 +225,43 @@
 
     function process() {
       const action = document.getElementById('action').value;
-      const message = document.getElementById('message').value;
+      const message = document.getElementById('message').value.trim();
       const key = parseInt(document.getElementById('key').value);
+      const errorBox = document.getElementById('error');
       const resultBox = document.getElementById('resultBox');
       const resultText = document.getElementById('result');
 
       if (!message || isNaN(key)) {
-        alert("Please enter a valid message and numeric key.");
+        errorBox.style.display = 'block';
+        errorBox.textContent = "Please enter a valid message and numeric key.";
+        resultBox.style.display = 'none';
         return;
       }
+
+      errorBox.style.display = 'none';
 
       const result = action === 'encrypt' ? encrypt(message, key) : decrypt(message, key);
       resultText.textContent = result;
       resultBox.style.display = 'block';
-      resultBox.classList.remove('fade');
     }
 
     function copyResult() {
-      const result = document.getElementById('result').textContent;
-      navigator.clipboard.writeText(result).then(() => {
-        alert("Copied to clipboard!");
+      const text = document.getElementById('result').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(".copy-btn");
+        const original = btn.textContent;
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => (btn.textContent = original), 1500);
       });
     }
 
     function toggleTheme() {
       document.body.classList.toggle('light');
+    }
+
+    function updateButtonText() {
+      const action = document.getElementById('action').value;
+      document.getElementById('actionBtn').textContent = action === 'encrypt' ? "Encrypt Now" : "Decrypt Now";
     }
   </script>
 
